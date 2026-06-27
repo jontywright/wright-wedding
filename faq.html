@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FAQ · Jonty &amp; Karla</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="assets/site.css" />
+<style>
+/* dress code feature */
+.dress{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(2rem,5vw,4.5rem);align-items:center;}
+@media (max-width:820px){.dress{grid-template-columns:1fr;}}
+.dress__media{position:relative;}
+.dress__media .arch{aspect-ratio:3/4;}
+.dress__media .arch img{width:100%;height:100%;object-fit:cover;}
+.dress h2{font-family:var(--display);font-weight:400;font-size:clamp(2.2rem,4.4vw,3.4rem);line-height:1.02;margin:1rem 0 1.2rem;}
+.dress p{color:var(--charcoal-soft);margin:0 0 1.2rem;}
+.dress__cols{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin:1.6rem 0;}
+@media (max-width:520px){.dress__cols{grid-template-columns:1fr;}}
+.dress__cols h4{font-family:var(--sans);text-transform:uppercase;letter-spacing:.2em;font-size:.66rem;color:var(--sage-deep);margin:0 0 .5rem;}
+.dress__cols p{font-size:.95rem;margin:0;}
+.swatches{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;margin-top:.4rem;}
+.swatch{width:30px;height:30px;border-radius:50%;border:1px solid rgba(0,0,0,.08);}
+
+/* faq accordion */
+.faqs{max-width:50rem;margin-inline:auto;}
+.faq{border-bottom:1px solid var(--line);}
+.faq summary{
+  list-style:none;cursor:pointer;padding:1.5rem 0;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;
+  font-family:var(--display);font-weight:400;font-size:clamp(1.3rem,2.4vw,1.7rem);color:var(--charcoal);
+}
+.faq summary::-webkit-details-marker{display:none;}
+.faq summary .plus{flex:none;width:22px;height:22px;position:relative;transition:transform .4s var(--ease);}
+.faq summary .plus::before,.faq summary .plus::after{content:"";position:absolute;background:var(--sage-deep);transition:opacity .3s var(--ease);}
+.faq summary .plus::before{top:50%;left:0;right:0;height:1px;transform:translateY(-50%);}
+.faq summary .plus::after{left:50%;top:0;bottom:0;width:1px;transform:translateX(-50%);}
+.faq[open] summary .plus{transform:rotate(135deg);}
+.faq__a{padding:0 0 1.6rem;color:var(--charcoal-soft);max-width:42rem;line-height:1.8;}
+.faq__a p{margin:0;}
+/* still-have-a-question block */
+.ask{text-align:center;margin-top:clamp(3rem,6vw,4.5rem);padding-top:clamp(2.5rem,5vw,3.5rem);border-top:1px solid var(--line);}
+.ask__lead{font-family:var(--display);font-weight:400;font-size:clamp(1.6rem,3.4vw,2.4rem);color:var(--charcoal);line-height:1.2;margin:.8rem auto 1.8rem;max-width:24ch;}
+.ask__btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+.ask .btn .wa{width:1.05em;height:1.05em;flex:none;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm5.8 14.18c-.25.69-1.44 1.32-1.99 1.4-.51.08-1.16.11-1.87-.12-.43-.14-.98-.32-1.69-.62-2.97-1.28-4.91-4.27-5.06-4.47-.15-.2-1.21-1.61-1.21-3.07 0-1.46.76-2.18 1.04-2.48.27-.3.59-.37.79-.37.2 0 .39 0 .56.01.18.01.42-.07.66.5.25.59.84 2.04.91 2.19.07.15.12.32.02.52-.1.2-.15.32-.3.49-.15.17-.31.39-.45.52-.15.15-.3.31-.13.61.17.3.76 1.25 1.63 2.03 1.12 1 2.07 1.31 2.37 1.46.3.15.47.12.64-.07.17-.2.74-.86.94-1.16.2-.3.39-.25.66-.15.27.1 1.72.81 2.01.96.3.15.5.22.57.35.07.12.07.72-.18 1.41Z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm5.8 14.18c-.25.69-1.44 1.32-1.99 1.4-.51.08-1.16.11-1.87-.12-.43-.14-.98-.32-1.69-.62-2.97-1.28-4.91-4.27-5.06-4.47-.15-.2-1.21-1.61-1.21-3.07 0-1.46.76-2.18 1.04-2.48.27-.3.59-.37.79-.37.2 0 .39 0 .56.01.18.01.42-.07.66.5.25.59.84 2.04.91 2.19.07.15.12.32.02.52-.1.2-.15.32-.3.49-.15.17-.31.39-.45.52-.15.15-.3.31-.13.61.17.3.76 1.25 1.63 2.03 1.12 1 2.07 1.31 2.37 1.46.3.15.47.12.64-.07.17-.2.74-.86.94-1.16.2-.3.39-.25.66-.15.27.1 1.72.81 2.01.96.3.15.5.22.57.35.07.12.07.72-.18 1.41Z'/%3E%3C/svg%3E") center/contain no-repeat;
+  background:currentColor;}
+</style>
+</head>
+<body data-page="faq">
+<div id="site-nav"></div>
+
+<section class="phero" style="min-height:56svh;" data-screen-label="FAQ — Hero">
+  <img src="assets/photos/proposal-picnic.jpg" alt="Jonty and Karla" style="object-position:center 42%;" />
+  <div class="phero__scrim"></div>
+  <div class="phero__inner">
+    <p class="eyebrow" style="color:rgba(255,255,255,.85);">Good to know</p>
+    <h1>The <span class="it">Details</span></h1>
+  </div>
+</section>
+
+<!-- DRESS CODE -->
+<section class="section" data-screen-label="FAQ — Dress Code">
+  <div class="wrap dress">
+    <div class="dress__media reveal">
+      <div class="figure arch"><img src="assets/photos/steps-sit.jpg" alt="Semi-formal dress inspiration" /></div>
+    </div>
+    <div class="dress__body reveal">
+      <p class="eyebrow eyebrow--sage">What to wear</p>
+      <h2>Semi-formal,<br />with colour.</h2>
+      <p>Think relaxed elegance for a summer afternoon in the vineyards. Dress to feel wonderful,
+        and please do bring colour, we would love a celebration that looks as joyful as it feels.</p>
+      <div class="dress__cols">
+        <div>
+          <h4>For her</h4>
+          <p>A midi or maxi dress, or a smart jumpsuit. Block heels or flats are kind to vineyard lawns.</p>
+          <p style="margin-top:.8rem;font-size:.88rem;">A gentle ask: please leave white and ivory to the bride. ;)</p>
+        </div>
+        <div>
+          <h4>For him</h4>
+          <p>Chinos or suit trousers with a collared shirt. A jacket is welcome but optional.</p>
+        </div>
+      </div>
+      <p style="margin-bottom:.5rem;"><span style="font-family:var(--sans);text-transform:uppercase;letter-spacing:.2em;font-size:.66rem;color:var(--sage-deep);">Colours we love</span></p>
+      <div class="swatches" aria-hidden="true">
+        <span class="swatch" style="background:#74A36E;"></span>
+        <span class="swatch" style="background:#E0B25A;"></span>
+        <span class="swatch" style="background:#5E8DC0;"></span>
+        <span class="swatch" style="background:#D17763;"></span>
+        <span class="swatch" style="background:#9E6B95;"></span>
+        <span class="swatch" style="background:#D699AC;"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQS -->
+<section class="section" style="background:var(--ivory);" data-screen-label="FAQ — Questions">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow eyebrow--sage">Questions</p>
+      <h2>Frequently asked</h2>
+    </div>
+    <div class="faqs reveal">
+      <details class="faq">
+        <summary>Can we bring our children?<span class="plus"></span></summary>
+        <div class="faq__a"><p>We have chosen to keep our day small and intimate, so our celebration is
+          adults-only. We hope it gives you a relaxed evening to enjoy with us. Thank you for understanding.</p></div>
+      </details>
+      <details class="faq">
+        <summary>Is there a bar?<span class="plus"></span></summary>
+        <div class="faq__a"><p>Yes. There will be a <strong>cash bar</strong> open through the evening. Please bring
+          cash or a card, as all drinks are for your own account.</p></div>
+      </details>
+      <details class="faq">
+        <summary>What time should I arrive?<span class="plus"></span></summary>
+        <div class="faq__a"><p>Please arrive by <strong>15:00</strong> and be seated by <strong>15:20</strong> so the bride can walk in at 15:30.</p></div>
+      </details>
+      <details class="faq">
+        <summary>When do I need to RSVP?<span class="plus"></span></summary>
+        <div class="faq__a"><p>Kindly RSVP by <strong>31 August 2026</strong> on the RSVP page. Each invitation is
+          individual, so please reply for the name on your invite.</p></div>
+      </details>
+      <details class="faq">
+        <summary>Can I bring a plus one?<span class="plus"></span></summary>
+        <div class="faq__a"><p>Our guest list is individual. Only the names listed on the RSVP page are
+          able to attend, so we are unable to accommodate additional plus ones.</p></div>
+      </details>
+      <details class="faq">
+        <summary>Is the wedding indoors or outdoors?<span class="plus"></span></summary>
+        <div class="faq__a"><p>The ceremony is in an open-air chapel overlooking the vines, and the
+          reception is under a covered pavilion. Robertson in December can be very warm, so dress accordingly and stay hydrated. We will have water on the tables. Do bring a light layer for the evening once the sun goes down.</p></div>
+      </details>
+      <details class="faq">
+        <summary>Where do I park?<span class="plus"></span></summary>
+        <div class="faq__a"><p>There is ample parking at Duvon Wine Estate. Follow the signs and our
+          parking attendants on the day.</p></div>
+      </details>
+      <details class="faq">
+        <summary>Dietary needs or a song request?<span class="plus"></span></summary>
+        <div class="faq__a"><p>You can note any dietary requirements and request up to three
+          songs for the dance floor right inside your RSVP.</p></div>
+      </details>
+    </div>
+    <div class="ask reveal">
+      <p class="eyebrow eyebrow--sage">Still have a question?</p>
+      <p class="ask__lead">For anything we missed, please ask Lise or Robyn.</p>
+      <div class="ask__btns">
+        <a class="btn" href="https://wa.me/27823328559?text=Hi%20Lise%2C%20just%20wanted%20to%20find%20out..." target="_blank" rel="noopener">
+          <span class="wa" aria-hidden="true"></span>WhatsApp Lise
+        </a>
+        <a class="btn" href="https://wa.me/27732210391?text=Hi%20Robyn%2C%20just%20wanted%20to%20find%20out..." target="_blank" rel="noopener">
+          <span class="wa" aria-hidden="true"></span>WhatsApp Robyn
+        </a>
+      </div>
+      <p style="margin-top:1.6rem;">
+        <a class="btn btn--ghost" href="rsvp.html">RSVP</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<div id="site-foot"></div>
+
+<script src="assets/chrome.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

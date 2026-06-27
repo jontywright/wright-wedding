@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Venue · Jonty &amp; Karla</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="assets/site.css" />
+<style>
+.vmeta{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+.vmeta__c{padding:clamp(2rem,4vw,3.4rem) 1.6rem;text-align:center;}
+.vmeta__c + .vmeta__c{border-left:1px solid var(--line);}
+.vmeta__c h3{font-family:var(--display);font-weight:400;font-size:clamp(1.6rem,2.6vw,2.2rem);margin:.8rem 0 .4rem;}
+.vmeta__c p{margin:0;color:var(--charcoal-soft);font-size:.95rem;}
+@media (max-width:760px){.vmeta{grid-template-columns:1fr;}.vmeta__c + .vmeta__c{border-left:0;border-top:1px solid var(--line);}}
+.vsplit{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1rem,2vw,1.4rem);}
+.vsplit figure{margin:0;overflow:hidden;border-radius:16px;}
+.vsplit img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;}
+@media (max-width:760px){.vsplit{grid-template-columns:1fr;}}
+.mapwrap{border-radius:16px;overflow:hidden;border:1px solid var(--line);aspect-ratio:16/8;background:var(--ivory);}
+.mapwrap iframe{width:100%;height:100%;border:0;display:block;filter:saturate(.9) contrast(1.02);}
+.dirs{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(1rem,2vw,1.6rem);}
+@media (max-width:760px){.dirs{grid-template-columns:1fr;}.mapwrap{aspect-ratio:4/3;}}
+.dirs h3{font-family:var(--display);font-weight:400;font-size:1.5rem;margin:0 0 .6rem;}
+.dirs ol{margin:0;padding-left:1.1rem;color:var(--charcoal-soft);line-height:1.8;}
+</style>
+</head>
+<body data-page="venue">
+<div id="site-nav"></div>
+
+<section class="phero" data-screen-label="Venue — Hero">
+  <img src="assets/photos/venue-chapel.jpg" alt="The vineyards and pavilion at Duvon Wine Estate" style="object-position:center 60%;" />
+  <div class="phero__scrim"></div>
+  <div class="phero__inner">
+    <p class="eyebrow" style="color:rgba(255,255,255,.85);">Robertson &middot; Wes-Kaap</p>
+    <h1>Duvon <span class="it">Wine Estate</span></h1>
+  </div>
+</section>
+
+<section class="section" style="padding-bottom:0;">
+  <div class="wrap">
+    <div class="vmeta reveal">
+      <div class="vmeta__c"><p class="eyebrow eyebrow--sage">Ceremony</p><h3>15:00</h3><p>Please arrive from 14:30<br />in the vineyard chapel</p></div>
+      <div class="vmeta__c"><p class="eyebrow eyebrow--sage">Reception</p><h3>17:00</h3><p>Dinner, dancing &amp; a cash bar<br />under the pavilion</p></div>
+      <div class="vmeta__c"><p class="eyebrow eyebrow--sage">One place</p><h3>All Evening</h3><p>Ceremony and reception<br />are at the same estate</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="vsplit reveal">
+      <figure><img src="assets/photos/venue-pavilion.jpg" alt="The vineyard chapel at sunset" /></figure>
+      <figure><img src="assets/photos/venue-gates.jpg" alt="The gates of Duvon Wine Estate" /></figure>
+    </div>
+    <p class="reveal" style="max-width:42rem;margin:clamp(2rem,4vw,3rem) auto 0;text-align:center;color:var(--charcoal-soft);">
+      Set among the vines of the Robertson valley, Duvon is a working wine estate with an open
+      chapel that looks out over the mountains, and a pavilion built for long summer evenings.
+      We could not imagine a more fitting place to begin our marriage.</p>
+  </div>
+</section>
+
+<section class="section" style="background:var(--ivory);">
+  <div class="wrap">
+    <div class="shead reveal">
+      <p class="eyebrow eyebrow--sage">Finding us</p>
+      <h2>Getting there</h2>
+    </div>
+    <div class="mapwrap reveal">
+      <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+        src="https://www.google.com/maps?q=Duvon+Wine+Estate+Robertson+Western+Cape&output=embed"
+        title="Map to Duvon Wine Estate"></iframe>
+    </div>
+    <div style="text-align:center;margin:2rem 0 clamp(2.5rem,5vw,4rem);">
+      <a class="btn btn--ghost" href="https://www.google.com/maps/search/?api=1&query=Duvon+Wine+Estate+Robertson" target="_blank" rel="noopener">Open in Google Maps</a>
+    </div>
+    <div class="dirs reveal">
+      <div class="card">
+        <h3>From Cape Town</h3>
+        <ol>
+          <li>Take the N1 east toward Worcester, roughly two hours.</li>
+          <li>Continue on the R60 through Worcester toward Robertson.</li>
+          <li>Follow signage for Duvon Wine Estate just outside Robertson.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3>From Robertson town</h3>
+        <ol>
+          <li>Head out on the R60 in the direction of Ashton.</li>
+          <li>Watch for the estate entrance on the vineyard side of the road.</li>
+          <li>Park in the marked guest area and follow the path to the chapel.</li>
+        </ol>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:1.6rem;font-size:.78rem;letter-spacing:.04em;color:var(--stone-deep);">
+      Directions are a guide only. Please confirm your route on the day. <span style="font-style:italic;">[Placeholder, swap for exact directions]</span>
+    </p>
+  </div>
+</section>
+
+<section class="section closing" style="text-align:center;">
+  <div class="wrap--narrow reveal">
+    <p class="eyebrow eyebrow--sage">Staying over?</p>
+    <h2 class="display" style="font-size:clamp(2rem,4.5vw,3.4rem);margin:1rem 0 1.4rem;">Find a place to rest nearby.</h2>
+    <a class="btn btn--ghost" href="accommodation.html">View Accommodation</a>
+  </div>
+</section>
+
+<div id="site-foot"></div>
+
+<script src="assets/chrome.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

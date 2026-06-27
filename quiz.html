@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Couple&rsquo;s Quiz · Jonty &amp; Karla</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="assets/site.css" />
+<style>
+.quiz-wrap{max-width:44rem;margin-inline:auto;}
+.qprogress{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.6rem;}
+.qprogress .step{font-family:var(--sans);text-transform:uppercase;letter-spacing:.22em;font-size:.62rem;color:var(--charcoal-soft);}
+.qbar{flex:1;height:1px;background:var(--line);position:relative;}
+.qbar i{position:absolute;left:0;top:0;bottom:0;background:var(--sage-deep);transition:width .5s var(--ease);}
+.qcard h2{font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,4vw,2.8rem);line-height:1.1;margin:0 0 1.6rem;}
+.opts{display:flex;flex-direction:column;gap:.7rem;}
+.opt{text-align:left;background:var(--warm-white);border:1px solid var(--stone-deep);padding:1.1rem 1.3rem;cursor:pointer;
+  font-family:var(--sans);font-size:1rem;color:var(--charcoal);transition:.28s var(--ease);display:flex;align-items:center;gap:1rem;width:100%;}
+.opt:hover{border-color:var(--charcoal);}
+.opt[data-on="true"]{background:var(--charcoal);color:#fff;border-color:var(--charcoal);}
+.opt .mk{font-family:var(--display);font-style:italic;color:var(--sage-deep);width:1.3rem;flex:none;}
+.opt[data-on="true"] .mk{color:#fff;}
+.namegate{text-align:center;}
+.namegate .seal{font-family:var(--display);font-style:italic;color:var(--sage);font-size:3.4rem;line-height:0;display:block;height:.5em;}
+.qresult{text-align:center;}
+.scorebig{font-family:var(--display);font-weight:400;font-size:clamp(4.5rem,14vw,9rem);line-height:.9;color:var(--charcoal);}
+.scorebig small{font-size:.32em;color:var(--stone-deep);font-style:italic;}
+.lb-board{margin:2.4rem auto 0;max-width:30rem;text-align:left;}
+.lb-row{display:flex;align-items:center;gap:1rem;padding:.75rem 0;border-bottom:1px solid var(--line);}
+.lb-row:last-child{border-bottom:0;}
+.lb-row .rank{font-family:var(--display);font-style:italic;color:var(--stone-deep);width:1.8rem;}
+.lb-row .who{flex:1;color:var(--charcoal);}
+.lb-row .sc{font-family:var(--display);font-size:1.2rem;color:var(--sage-deep);}
+.lb-row.me{background:var(--ivory);margin-inline:-1rem;padding-inline:1rem;}
+.lb-row.me .who{font-style:italic;}
+.prize{background:var(--ivory);border:1px solid var(--line);padding:1.3rem 1.5rem;margin-top:2rem;font-size:.95rem;color:var(--charcoal-soft);}
+.prize b{color:var(--charcoal);font-weight:400;}
+.linklike{background:none;border:0;color:var(--charcoal-soft);text-decoration:underline;cursor:pointer;
+  font-family:var(--sans);font-size:.85rem;letter-spacing:.04em;padding:0;}
+.linklike:hover{color:var(--charcoal);}
+</style>
+</head>
+<body data-page="quiz">
+<div id="site-nav"></div>
+
+<section class="phero" style="min-height:52svh;" data-screen-label="Quiz — Hero">
+  <img src="assets/photos/laughing-up.jpg" alt="Jonty and Karla laughing" style="object-position:center 28%;" />
+  <div class="phero__scrim"></div>
+  <div class="phero__inner">
+    <p class="eyebrow" style="color:rgba(255,255,255,.85);">For a little fun</p>
+    <h1>The Couple&rsquo;s <span class="it">Quiz</span></h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap quiz-wrap">
+    <div id="quiz-app"></div>
+  </div>
+</section>
+
+<div id="site-foot"></div>
+
+<script src="assets/config.js"></script>
+<script src="assets/chrome.js"></script>
+<script src="assets/site.js"></script>
+
+<script>
+(function(){
+  const QUIZ_KEY = "kj_quiz_scores";
+  const WEBHOOK  = window.KJ_SHEETS_WEBHOOK || "";
+  const app      = document.getElementById("quiz-app");
+  const LETTERS  = ["a","b","c","d"];
+  const QUESTIONS = [
+    { q:"Where was our very first date?", opts:["Starbucks","Vida","A coffee shop in town","Mugg & Bean"], a:1 },
+    { q:"What did Jonty forget at the spot of our first date?", opts:["His wallet","His glasses","His phone","His jacket"], a:1 },
+    { q:"On what day did Jonty ask Karla out?", opts:["18 March","11 May","14 February","1 June"], a:1 },
+    { q:"What is our favourite kind of date?", opts:["A movie night","A picnic together","Dinner out","A morning hike"], a:1 },
+    { q:"On what date did Jonty ask Oom Tobie for Karla's hand?", opts:["15 May 2025","21 June 2025","11 May 2025","1 June 2025"], a:0 },
+    { q:"Which of Karla's friends got her to do her nails before the engagement?", opts:["Andrea","Lorene","Ezelle","Nella"], a:1 },
+    { q:"Who drove Jonty to Karla the night he met her parents?", opts:["Tom","Naz and Sachen","Jono and Dylan","His sister"], a:1 },
+    { q:"Where have we travelled overseas together?", opts:["Mauritius","Rwanda","Italy","Thailand"], a:1 },
+    { q:"Who said “I love you” first?", opts:["Jonty","Karla","At the same time","Neither will admit it"], a:1 },
+    { q:"Where did Jonty propose?", opts:["Kirstenbosch","Waterford","Quoin Rock","Lourensford"], a:1 }
+  ];
+  const TOTAL = QUESTIONS.length;
+
+  function loadScores(){ try{ return JSON.parse(localStorage.getItem(QUIZ_KEY)||"{}"); }catch(e){ return {}; } }
+  function saveScores(o){ localStorage.setItem(QUIZ_KEY, JSON.stringify(o)); }
+  function pushToSheet(name, score){
+    if(!WEBHOOK) return;
+    try{ fetch(WEBHOOK,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({type:"quiz",name,score,total:TOTAL,ts:Date.now()})}); }catch(e){}
+  }
+  function message(s){
+    if(s===TOTAL) return "A perfect score. Are you sure you're not one of us?";
+    if(s>=8) return "Incredible. You clearly know us very well.";
+    if(s>=6) return "Not bad at all. You've been paying attention.";
+    if(s>=4) return "A valiant effort. We'll forgive you for the rest.";
+    return "Well... you came for the love, not the trivia. We adore you anyway.";
+  }
+
+  /* --- state --- */
+  const st = {
+    phase:"gate", // gate | play | done | already
+    name:"", playedName:"",
+    i:0, answers:[], sel:null, finalScore:0,
+    scores: loadScores()
+  };
+
+  function h(tag, attrs, ...children){
+    const el = document.createElement(tag);
+    Object.entries(attrs||{}).forEach(([k,v])=>{
+      if(k==="class") el.className=v;
+      else if(k==="style") el.style.cssText=v;
+      else el.setAttribute(k,v);
+    });
+    children.forEach(c=>{
+      if(c==null||c===false) return;
+      if(typeof c==="string"){ el.insertAdjacentHTML("beforeend",c); }
+      else { el.append(c); }
+    });
+    return el;
+  }
+
+  function renderBoard(highlight){
+    const rows = Object.keys(st.scores).map(k=>({name:k, score:st.scores[k].score, ts:st.scores[k].ts}));
+    rows.sort((a,b)=>b.score-a.score||a.ts-b.ts);
+    const wrap = h("div",{class:"lb-board"});
+    wrap.append(h("p",{class:"eyebrow eyebrow--sage",style:"text-align:center;margin-bottom:1rem;"},"Leaderboard"));
+    if(rows.length===0){
+      wrap.append(h("p",{class:"empty",style:"text-align:center;"},"Be the first to play."));
+    } else {
+      rows.slice(0,10).forEach((r,idx)=>{
+        const row = h("div",{class:"lb-row"+(r.name===highlight?" me":"")});
+        const sc = h("span",{class:"sc"});
+        sc.innerHTML = r.score+'<span style="color:var(--stone-deep);font-size:.7em;">'+'/'+TOTAL+'</span>';
+        row.append(h("span",{class:"rank"},String(idx+1)), h("span",{class:"who"},r.name), sc);
+        wrap.append(row);
+      });
+    }
+    return wrap;
+  }
+
+  function renderGate(){
+    const wrap = h("div",{class:"namegate"});
+    wrap.append(
+      h("span",{class:"seal","aria-hidden":"true"},"&amp;"),
+      h("p",{class:"eyebrow eyebrow--sage",style:"margin-top:1rem;"},"10 questions &middot; one attempt"),
+      h("h2",{class:"display",style:"font-size:clamp(2rem,5vw,3.2rem);margin:1rem 0;"},"How well do you<br />know us?"),
+      h("p",{style:"max-width:30rem;margin:0 auto 2rem;color:var(--charcoal-soft);"},
+        "One try each, so make it count. The highest scorer wins a little something from us on the wedding day. Enter your name to begin.")
+    );
+    const field = h("div",{class:"field",style:"max-width:22rem;margin:0 auto;"});
+    const input = h("input",{class:"input",style:"text-align:center;",placeholder:"Your name",autocomplete:"name"});
+    input.value = st.name;
+    input.addEventListener("input",()=>{ st.name=input.value; startBtn.style.opacity=st.name.trim()?1:.4; });
+    input.addEventListener("keydown",e=>{ if(e.key==="Enter") start(); });
+    field.append(input);
+    const startBtn = h("button",{class:"btn",style:"opacity:"+(st.name.trim()?1:.4)+";"},"Start the Quiz");
+    startBtn.addEventListener("click",start);
+    wrap.append(field, h("p",{style:"margin-top:1.6rem;"},startBtn));
+    return wrap;
+  }
+
+  function renderAlready(){
+    const mine = st.scores[st.playedName];
+    const wrap = h("div",{class:"qresult"});
+    const big = h("div",{class:"scorebig",style:"margin-top:1rem;"});
+    big.innerHTML = mine.score+'<small>/'+TOTAL+'</small>';
+    wrap.append(
+      h("p",{class:"eyebrow eyebrow--sage"},"Only one try each"),
+      h("h2",{class:"display",style:"font-size:clamp(1.8rem,4vw,2.6rem);margin:1rem 0 .4rem;"},
+        "You've already played, "+st.playedName+"."),
+      big,
+      h("p",{style:"color:var(--charcoal-soft);max-width:28rem;margin:1rem auto 0;"},message(mine.score)),
+      renderBoard(st.playedName)
+    );
+    const again = h("button",{class:"linklike",style:"margin-top:2rem;display:inline-block;"},"Play as someone else");
+    again.addEventListener("click",()=>{ st.name=""; st.playedName=""; st.phase="gate"; render(); });
+    wrap.append(h("p",{style:"margin-top:2rem;"},again));
+    return wrap;
+  }
+
+  function renderDone(){
+    const wrap = h("div",{class:"qresult"});
+    const big = h("div",{class:"scorebig"});
+    big.innerHTML = st.finalScore+'<small>/'+TOTAL+'</small>';
+    const prize = h("div",{class:"prize"});
+    prize.innerHTML = '<b>The prize:</b> the highest score wins a little something from Jonty &amp; Karla on the wedding day. Your score is locked in, no second tries, so this one counts.';
+    wrap.append(
+      h("p",{class:"eyebrow eyebrow--sage"},"Your score"),
+      big,
+      h("p",{style:"color:var(--charcoal-soft);max-width:30rem;margin:1.2rem auto 0;font-size:1.1rem;"},message(st.finalScore)),
+      prize,
+      renderBoard(st.playedName)
+    );
+    return wrap;
+  }
+
+  function renderPlay(){
+    const item = QUESTIONS[st.i];
+    const wrap = h("div",{class:"qcard"});
+    const progress = h("div",{class:"qprogress"});
+    const bar = h("div",{class:"qbar"});
+    const fill = h("i",{style:"width:"+(st.i/TOTAL*100)+"%;"});
+    bar.append(fill);
+    progress.append(
+      h("span",{class:"step"},"Question "+(st.i+1)+" of "+TOTAL),
+      bar,
+      h("span",{class:"step"},st.playedName)
+    );
+    const q2 = h("h2",{},item.q);
+    const opts = h("div",{class:"opts"});
+    item.opts.forEach((o,idx)=>{
+      const btn = h("button",{class:"opt"},
+        h("span",{class:"mk"},LETTERS[idx]),
+        h("span",{},o)
+      );
+      btn.dataset.on = String(st.sel===idx);
+      btn.addEventListener("click",()=>{
+        st.sel=idx;
+        opts.querySelectorAll(".opt").forEach((b,bi)=>{ b.dataset.on=String(bi===idx); });
+        nextBtn.style.opacity=1; nextBtn.style.cursor="pointer"; nextBtn.disabled=false;
+      });
+      opts.append(btn);
+    });
+    const nextBtn = h("button",{class:"btn"},
+      st.i+1<TOTAL ? "Next" : "See my score"
+    );
+    nextBtn.style.opacity = st.sel==null ? .4 : 1;
+    nextBtn.style.cursor  = st.sel==null ? "not-allowed" : "pointer";
+    nextBtn.disabled = st.sel==null;
+    nextBtn.addEventListener("click",()=>{
+      if(st.sel==null) return;
+      st.answers.push(st.sel);
+      const selWas = st.sel; st.sel=null;
+      if(st.i+1<TOTAL){
+        st.i++;
+        render();
+      } else {
+        let score=0;
+        st.answers.forEach((a,qi)=>{ if(a===QUESTIONS[qi].a) score++; });
+        const next = Object.assign({},st.scores,{[st.playedName]:{score,ts:Date.now()}});
+        saveScores(next); st.scores=next; st.finalScore=score; st.phase="done";
+        pushToSheet(st.playedName,score);
+        render();
+      }
+      window.scrollTo({top:0,behavior:"smooth"});
+    });
+    wrap.append(
+      progress, q2, opts,
+      h("div",{style:"margin-top:1.8rem;display:flex;align-items:center;gap:1.2rem;"},
+        nextBtn,
+        h("span",{style:"font-size:.78rem;letter-spacing:.04em;color:var(--stone-deep);"},"No going back")
+      )
+    );
+    return wrap;
+  }
+
+  function start(){
+    const n = st.name.trim();
+    if(!n) return;
+    st.playedName=n;
+    if(st.scores[n]!=null){ st.phase="already"; }
+    else { st.i=0; st.answers=[]; st.sel=null; st.phase="play"; }
+    render();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  function render(){
+    app.innerHTML="";
+    if(st.phase==="gate")    app.append(renderGate());
+    else if(st.phase==="already") app.append(renderAlready());
+    else if(st.phase==="done")    app.append(renderDone());
+    else if(st.phase==="play")    app.append(renderPlay());
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>

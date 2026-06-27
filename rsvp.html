@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RSVP · Jonty &amp; Karla</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="assets/site.css" />
+<style>
+.rsvp-wrap{max-width:42rem;margin-inline:auto;}
+.note-strip{display:flex;gap:1.4rem;flex-wrap:wrap;justify-content:center;margin-top:1.4rem;}
+.note-strip span{font-family:var(--sans);text-transform:uppercase;letter-spacing:.16em;font-size:.6rem;color:var(--stone-deep);}
+.results{display:flex;flex-direction:column;gap:.5rem;margin-top:1.2rem;}
+.result{display:flex;align-items:center;justify-content:space-between;gap:1rem;text-align:left;
+  background:var(--warm-white);border:1px solid var(--line);padding:1rem 1.3rem;cursor:pointer;
+  font-family:var(--display);font-size:1.3rem;color:var(--charcoal);transition:.3s var(--ease);width:100%;}
+.result:hover{border-color:var(--charcoal);transform:translateX(3px);}
+.result small{font-family:var(--sans);text-transform:uppercase;letter-spacing:.18em;font-size:.58rem;color:var(--sage-deep);}
+.result.done-tag small{color:var(--stone-deep);}
+.empty{text-align:center;color:var(--stone-deep);font-style:italic;font-family:var(--display);font-size:1.2rem;margin-top:1.2rem;}
+.songrow{display:flex;align-items:center;gap:.8rem;}
+.songrow .n{font-family:var(--display);font-style:italic;color:var(--sage-deep);width:1.4rem;flex:none;text-align:center;}
+.banner{background:var(--ivory);border:1px solid var(--line);padding:1rem 1.3rem;margin-bottom:1.6rem;
+  font-size:.92rem;color:var(--charcoal-soft);text-align:center;}
+.confirm{text-align:center;}
+.confirm .seal{font-family:var(--display);font-style:italic;color:var(--sage);font-size:4rem;line-height:0;display:block;height:.5em;}
+.confirm h2{font-family:var(--display);font-weight:400;font-size:clamp(2.2rem,5vw,3.4rem);margin:1.4rem 0 .6rem;line-height:1.05;}
+.summary{text-align:left;background:var(--warm-white);border:1px solid var(--line);padding:1.6rem;margin:2rem 0;}
+.summary .row{display:flex;justify-content:space-between;gap:1rem;padding:.6rem 0;border-bottom:1px solid var(--line);}
+.summary .row:last-child{border-bottom:0;}
+.summary .k{font-family:var(--sans);text-transform:uppercase;letter-spacing:.16em;font-size:.6rem;color:var(--charcoal-soft);}
+.summary .v{color:var(--charcoal);text-align:right;}
+.linklike{background:none;border:0;color:var(--charcoal-soft);text-decoration:underline;cursor:pointer;
+  font-family:var(--sans);font-size:.85rem;letter-spacing:.04em;padding:0;}
+.linklike:hover{color:var(--charcoal);}
+.backlink{background:none;border:0;cursor:pointer;font-family:var(--sans);text-transform:uppercase;
+  letter-spacing:.2em;font-size:.62rem;color:var(--charcoal-soft);margin-bottom:1.4rem;padding:0;display:block;}
+.backlink:hover{color:var(--charcoal);}
+</style>
+</head>
+<body data-page="rsvp">
+<div id="site-nav"></div>
+
+<section class="phero" style="min-height:52svh;" data-screen-label="RSVP — Hero">
+  <img src="assets/photos/laughing-up.jpg" alt="Jonty and Karla laughing together" style="object-position:center 40%;" />
+  <div class="phero__scrim"></div>
+  <div class="phero__inner">
+    <p class="eyebrow" style="color:rgba(255,255,255,.85);">Kindly reply by 31 August 2026</p>
+    <h1>RSVP</h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap rsvp-wrap">
+    <div id="rsvp-app"></div>
+  </div>
+</section>
+
+<div id="site-foot"></div>
+
+<script src="assets/guests.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/chrome.js"></script>
+<script src="assets/site.js"></script>
+
+<script>
+(function(){
+  const STORE_KEY = "kj_rsvps";
+  const WEBHOOK   = window.KJ_SHEETS_WEBHOOK || "";
+  const guests    = window.KJ_GUESTS || [];
+  const app       = document.getElementById("rsvp-app");
+
+  /* --- storage helpers --- */
+  function loadStore(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)||"{}"); }catch(e){ return {}; } }
+  function saveStore(o){ localStorage.setItem(STORE_KEY, JSON.stringify(o)); }
+  function pushToSheet(payload){
+    if(!WEBHOOK) return;
+    try{ fetch(WEBHOOK,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify(Object.assign({type:"rsvp"},payload))}); }catch(e){}
+  }
+
+  /* --- state --- */
+  const s = {
+    phase:"search", // search | form | confirm
+    query:"", selected:null, existing:false,
+    attending:null, dietary:"", songs:["","",""], note:"",
+    store: loadStore()
+  };
+
+  /* --- render helpers --- */
+  function h(tag, attrs, ...children){
+    const el = document.createElement(tag);
+    Object.entries(attrs||{}).forEach(([k,v])=>{
+      if(k==="class") el.className=v;
+      else if(k==="style") el.style.cssText=v;
+      else if(k==="data") Object.entries(v).forEach(([dk,dv])=>el.dataset[dk]=dv);
+      else el.setAttribute(k,v);
+    });
+    children.forEach(c=>{
+      if(c==null||c===false) return;
+      el.append(typeof c==="string" ? document.createTextNode(c) : c);
+    });
+    return el;
+  }
+
+  function rankMatch(name, q){
+    const n = name.toLowerCase();
+    if(n.startsWith(q)) return 0;
+    if(n.split(/\s+/).some(w=>w.startsWith(q))) return 1;
+    if(n.includes(q)) return 2;
+    return -1;
+  }
+
+  /* --- phases --- */
+  function renderSearch(){
+    const wrap = h("div");
+    const shead = h("div",{class:"shead",style:"margin-bottom:1.6rem;"});
+    shead.append(
+      h("p",{class:"eyebrow eyebrow--sage"},"Find your invitation"),
+      h("h2",{style:"font-size:clamp(2rem,4.5vw,3rem);"},"Search your name")
+    );
+    const field = h("div",{class:"field"});
+    const input = h("input",{class:"input",placeholder:"Start typing your name…",autocomplete:"name",autofocus:""});
+    input.value = s.query;
+    field.append(input);
+    const noteStrip = h("div",{class:"note-strip"});
+    ["Individual RSVP","No plus ones","Adults only"].forEach(t=>noteStrip.append(h("span",{},t)));
+    const resultsWrap = h("div",{id:"results-container"});
+
+    wrap.append(shead, field, noteStrip, resultsWrap);
+
+    function updateResults(){
+      resultsWrap.innerHTML="";
+      const q = s.query.trim().toLowerCase();
+      if(!q) return;
+      const matches = guests
+        .map(g=>({g,r:rankMatch(g,q)}))
+        .filter(x=>x.r>=0)
+        .sort((a,b)=>a.r-b.r||a.g.localeCompare(b.g))
+        .map(x=>x.g)
+        .slice(0,8);
+      if(matches.length>0){
+        const list = h("div",{class:"results"});
+        matches.forEach((name,idx)=>{
+          const done = !!s.store[name];
+          const btn = h("button",{class:"result"+(done?" done-tag":"")});
+          btn.append(h("span",{},name), h("small",{},done?"Replied · edit":"This is me →"));
+          btn.addEventListener("click",()=>pickGuest(name));
+          list.append(btn);
+        });
+        resultsWrap.append(list);
+      } else {
+        resultsWrap.append(h("p",{class:"empty"},"We can’t find that name. Try a different spelling, or reach out to us directly."));
+      }
+    }
+
+    input.addEventListener("input",()=>{ s.query=input.value; updateResults(); });
+    updateResults();
+    return wrap;
+  }
+
+  function renderForm(){
+    const wrap = h("div");
+    const back = h("button",{class:"backlink"},"← Search a different name");
+    back.addEventListener("click",()=>{ s.phase="search"; s.selected=null; render(); });
+    wrap.append(back);
+
+    if(s.existing){
+      wrap.append(h("div",{class:"banner"},"You’ve already replied. You can update your RSVP below."));
+    }
+
+    wrap.append(
+      h("p",{class:"eyebrow eyebrow--sage"},"Hello"),
+      h("h2",{class:"display",style:"font-size:clamp(2rem,4.5vw,3rem);margin:.6rem 0 1.8rem;"},s.selected)
+    );
+
+    /* attending choice */
+    const choiceField = h("div",{class:"field",style:"margin-bottom:1.8rem;"});
+    choiceField.append(h("label",{},"Will you be joining us?"));
+    const choice = h("div",{class:"choice"});
+    const acceptBtn = h("button",{},"Joyfully Accept");
+    const declineBtn = h("button",{class:"decline"},"Regretfully Decline");
+    acceptBtn.dataset.on = s.attending==="yes";
+    declineBtn.dataset.on = s.attending==="no";
+    acceptBtn.addEventListener("click",()=>{ s.attending="yes"; acceptBtn.dataset.on="true"; declineBtn.dataset.on="false"; toggleExtra(); });
+    declineBtn.addEventListener("click",()=>{ s.attending="no"; acceptBtn.dataset.on="false"; declineBtn.dataset.on="true"; toggleExtra(); });
+    choice.append(acceptBtn, declineBtn);
+    choiceField.append(choice);
+    wrap.append(choiceField);
+
+    /* extra fields container */
+    const extra = h("div",{id:"extra-fields",style:"display:flex;flex-direction:column;gap:1.6rem;"});
+    wrap.append(extra);
+
+    function toggleExtra(){
+      extra.innerHTML="";
+      if(s.attending==="yes"){
+        const df = h("div",{class:"field"});
+        df.append(h("label",{},"Dietary requirements"));
+        const ta = h("textarea",{class:"input",placeholder:"Allergies, vegetarian, halaal, or none"});
+        ta.value = s.dietary;
+        ta.addEventListener("input",()=>{ s.dietary=ta.value; });
+        df.append(ta);
+
+        const sf = h("div",{class:"field"});
+        sf.append(h("label",{},"Three songs you promise to dance to"));
+        const note = h("p",{style:"margin:-.1rem 0 .2rem;font-family:var(--display);font-style:italic;font-size:1.05rem;color:var(--sage-deep);line-height:1.5;"},
+          "We are keeping the dance floor full. Pick three songs and, by writing them here, you solemnly promise Jonty & Karla that when they play, you will be up and dancing. No excuses.");
+        const songList = h("div",{style:"display:flex;flex-direction:column;gap:.7rem;"});
+        [0,1,2].forEach(i=>{
+          const row = h("div",{class:"songrow"});
+          row.append(h("span",{class:"n"},String(i+1)));
+          const inp = h("input",{class:"input",placeholder:"Song & artist"});
+          inp.value = s.songs[i];
+          inp.addEventListener("input",()=>{ s.songs[i]=inp.value; });
+          row.append(inp);
+          songList.append(row);
+        });
+        sf.append(note, songList);
+        extra.append(df, sf);
+      } else if(s.attending==="no"){
+        const nf = h("div",{class:"field"});
+        nf.append(h("label",{},"A note for us (optional)"));
+        const ta = h("textarea",{class:"input",placeholder:"We’ll miss you. Leave us a message if you like."});
+        ta.value = s.note;
+        ta.addEventListener("input",()=>{ s.note=ta.value; });
+        nf.append(ta);
+        extra.append(nf);
+      }
+      updateSubmit();
+    }
+
+    /* submit row */
+    const submitRow = h("div",{id:"submit-row",style:"margin-top:2rem;display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;"});
+    wrap.append(submitRow);
+
+    function updateSubmit(){
+      submitRow.innerHTML="";
+      const opacity = s.attending ? 1 : 0.4;
+      const cursor  = s.attending ? "pointer" : "not-allowed";
+      const submitBtn = h("button",{class:"btn",style:"opacity:"+opacity+";cursor:"+cursor+";"},
+        s.existing ? "Update RSVP" : "Send RSVP");
+      submitBtn.disabled = !s.attending;
+      submitBtn.addEventListener("click",()=>{
+        if(!s.attending) return;
+        const rec = {
+          attending: s.attending,
+          dietary: s.dietary.trim(),
+          songs: s.songs.map(x=>x.trim()).filter(Boolean),
+          note: s.note.trim(),
+          ts: Date.now()
+        };
+        const next = Object.assign({}, s.store, {[s.selected]: rec});
+        saveStore(next); s.store = next;
+        pushToSheet(Object.assign({name:s.selected}, rec));
+        s.phase = "confirm";
+        render();
+        window.scrollTo({top:0,behavior:"smooth"});
+      });
+      submitRow.append(submitBtn, h("span",{style:"font-size:.78rem;letter-spacing:.04em;color:var(--stone-deep);"},"One reply per guest"));
+    }
+
+    toggleExtra();
+    return wrap;
+  }
+
+  function renderConfirm(){
+    const accepted = s.attending==="yes";
+    const wrap = h("div",{class:"confirm"});
+    wrap.append(
+      h("span",{class:"seal","aria-hidden":"true"},"&"),
+      h("p",{class:"eyebrow eyebrow--sage",style:"margin-top:1rem;"},accepted?"We can’t wait":"We’ll miss you"),
+      h("h2",{},"Thank you, "+s.selected+"."),
+      h("p",{style:"max-width:30rem;margin:0 auto;color:var(--charcoal-soft);"},
+        accepted
+          ? "Your RSVP is in. We are so glad you’ll be celebrating with us in the Robertson valley."
+          : "Thank you for letting us know. You will be dearly missed, but we understand and hold you close.")
+    );
+
+    const summary = h("div",{class:"summary"});
+    function row(k,v){ const r=h("div",{class:"row"}); r.append(h("span",{class:"k"},k),h("span",{class:"v"},v)); summary.append(r); }
+    row("Guest", s.selected);
+    row("Attending", accepted?"Joyfully accepts":"Regretfully declines");
+    if(accepted && s.dietary.trim()) row("Dietary", s.dietary.trim());
+    const songs = s.songs.filter(x=>x.trim());
+    if(accepted && songs.length>0) row("Songs", songs.join(", "));
+    wrap.append(summary);
+
+    const editBtn = h("button",{class:"linklike"},"Edit this RSVP");
+    editBtn.addEventListener("click",()=>{ s.phase="form"; render(); });
+    const anotherBtn = h("button",{class:"linklike"},"RSVP for someone else");
+    anotherBtn.addEventListener("click",()=>{ s.phase="search"; s.selected=null; s.query=""; s.attending=null; s.dietary=""; s.songs=["","",""]; s.note=""; render(); });
+
+    wrap.append(editBtn, h("span",{style:"margin:0 .8rem;color:var(--stone-deep);"}, "·"), anotherBtn);
+    return wrap;
+  }
+
+  function render(){
+    app.innerHTML="";
+    if(s.phase==="search")  app.append(renderSearch());
+    else if(s.phase==="form") app.append(renderForm());
+    else if(s.phase==="confirm") app.append(renderConfirm());
+  }
+
+  function pickGuest(name){
+    s.selected = name;
+    const rec = s.store[name];
+    if(rec){
+      s.existing = true;
+      s.attending = rec.attending;
+      s.dietary   = rec.dietary || "";
+      s.songs     = rec.songs && rec.songs.length===3 ? rec.songs : ["","",""];
+      s.note      = rec.note || "";
+    } else {
+      s.existing = false;
+      s.attending = null; s.dietary = ""; s.songs = ["","",""]; s.note = "";
+    }
+    s.phase = "form";
+    render();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>

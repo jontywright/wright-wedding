@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gift Registry · Jonty &amp; Karla</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="assets/site.css" />
+<style>
+/* intro */
+.reg-intro{text-align:center;}
+.reg-intro h2{font-family:var(--display);font-weight:400;font-size:clamp(2.2rem,5vw,3.6rem);line-height:1.04;margin:1rem 0 0;}
+.reg-intro p{max-width:42rem;margin:1.6rem auto 0;color:var(--charcoal-soft);font-size:1.08rem;line-height:1.8;}
+
+/* presence highlight */
+.presence{
+  max-width:46rem;margin:clamp(2.5rem,5vw,4rem) auto 0;text-align:center;
+  padding:clamp(2rem,4vw,3rem) clamp(1.4rem,3vw,2.4rem);
+  background:var(--ivory);border:1px solid var(--line);
+}
+.presence h3{
+  font-family:var(--display);font-weight:400;font-style:italic;
+  font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.15;color:var(--sage-deep);margin:0 0 1rem;
+}
+.presence p{margin:0;color:var(--charcoal-soft);font-size:1rem;line-height:1.8;}
+
+/* contribute disclosure */
+.give{text-align:center;margin-top:clamp(2.5rem,5vw,4rem);}
+.give>summary{display:inline-flex;align-items:center;justify-content:center;list-style:none;cursor:pointer;}
+.give>summary::-webkit-details-marker{display:none;}
+.give>summary::after{content:"";display:inline-block;width:.46em;height:.46em;margin-left:.2em;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-.12em);transition:transform .35s var(--ease);}
+.give[open]>summary::after{transform:rotate(-135deg) translateY(.06em);}
+.give__body{margin-top:clamp(2.6rem,5vw,3.6rem);animation:gmFade .5s var(--ease) both;}
+.give__guide{max-width:40rem;margin:0 auto;color:var(--charcoal-soft);font-size:1.02rem;line-height:1.85;}
+.give .rooms{margin-top:clamp(2.2rem,4vw,3.2rem);}
+
+/* room grid */
+.rooms{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(.9rem,1.8vw,1.4rem);
+  margin-top:clamp(2.5rem,5vw,4rem);
+}
+.room{
+  display:flex;flex-direction:column;
+  padding:clamp(1.6rem,3vw,2.3rem);
+  background:var(--warm-white);border:1px solid var(--line);
+}
+.room__num{font-family:var(--display);font-style:italic;color:var(--stone-deep);font-size:clamp(1.9rem,3.6vw,2.6rem);line-height:.9;display:block;margin-bottom:.5rem;}
+.room__name{font-family:var(--display);font-weight:400;font-size:clamp(1.4rem,2.4vw,1.85rem);line-height:1.05;margin:0 0 .7rem;}
+.room__desc{font-size:.92rem;color:var(--charcoal-soft);line-height:1.7;margin:0 0 1.2rem;flex:1;}
+.room__amt{font-family:var(--display);font-weight:400;font-size:clamp(1.3rem,2vw,1.7rem);color:var(--sage-deep);letter-spacing:.01em;margin-bottom:1.1rem;}
+.room__give{align-self:flex-start;}
+@media (max-width:820px){.rooms{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:540px){.rooms{grid-template-columns:1fr;}}
+
+/* bank block (used inside modal) */
+.bank{background:var(--warm-white);border:1px solid var(--line);padding:clamp(1.4rem,3vw,2rem);}
+.bank__title{text-align:center;margin-bottom:1rem;}
+.brow{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.55rem 0;border-bottom:1px solid var(--line);}
+.brow:last-of-type{border-bottom:0;}
+.brow__k{font-family:var(--sans);text-transform:uppercase;letter-spacing:.16em;font-size:.6rem;color:var(--charcoal-soft);flex:none;}
+.brow__v{font-family:var(--display);font-size:1.12rem;color:var(--charcoal);text-align:right;line-height:1.2;letter-spacing:.01em;}
+.brow__v.mono{font-variant-numeric:tabular-nums;letter-spacing:.04em;}
+.bankall{display:flex;justify-content:center;margin-top:1.2rem;}
+
+/* contribute modal */
+.gmodal{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:1.2rem;}
+.gmodal[hidden]{display:none;}
+.gmodal__backdrop{position:absolute;inset:0;background:rgba(22,21,18,.55);backdrop-filter:blur(3px);animation:gmFade .35s var(--ease) both;}
+.gmodal__card{
+  position:relative;z-index:1;width:min(100%,34rem);max-height:90svh;overflow-y:auto;
+  background:var(--page-bg);border:1px solid var(--line);
+  padding:clamp(1.8rem,4vw,2.8rem);text-align:center;
+  box-shadow:0 30px 80px -30px rgba(22,21,18,.5);
+  animation:gmRise .45s var(--ease) both;
+}
+@keyframes gmFade{from{opacity:0;}to{opacity:1;}}
+@keyframes gmRise{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
+.gmodal__x{
+  position:absolute;top:1rem;right:1rem;width:34px;height:34px;border:1px solid var(--line);
+  background:transparent;border-radius:50%;cursor:pointer;color:var(--charcoal-soft);
+  font-size:1.1rem;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .3s var(--ease);
+}
+.gmodal__x:hover{background:var(--ivory);color:var(--charcoal);}
+.gmodal__title{font-family:var(--display);font-weight:400;font-size:clamp(1.8rem,4vw,2.4rem);line-height:1.05;margin:.4rem 0 0;}
+.gmodal__room{font-family:var(--display);font-style:italic;color:var(--sage-deep);}
+.gmodal__msg{max-width:28rem;margin:1.1rem auto 1.8rem;color:var(--charcoal-soft);font-size:.98rem;line-height:1.8;}
+</style>
+</head>
+<body data-page="registry">
+<div id="site-nav"></div>
+
+<section class="phero" style="min-height:60svh;" data-screen-label="Registry — Hero">
+  <img src="assets/photos/columns-laugh.jpg" alt="Jonty and Karla laughing together" style="object-position:center 42%;" />
+  <div class="phero__scrim"></div>
+  <div class="phero__inner">
+    <p class="eyebrow" style="color:rgba(255,255,255,.85);">Gifts</p>
+    <h1>The <span class="it">Registry</span></h1>
+  </div>
+</section>
+
+<section class="section" data-screen-label="Registry — House Fund">
+  <div class="wrap--narrow reg-intro reveal">
+    <p class="eyebrow eyebrow--sage">A note before anything else</p>
+    <h2>Your presence is<br />the gift.</h2>
+    <p>Having you with us on the day is, genuinely, everything we could ask for. We know a wedding
+      lands in many different seasons of life, and there is no expectation here at all.</p>
+
+    <div class="presence">
+      <h3>Being there is more<br />than enough.</h3>
+      <p>That said, as we head into internship, we&rsquo;re saving toward our very first home.
+        For those who are able and would love to, we&rsquo;d welcome you to sow into this next
+        chapter with us. Every contribution, big or small, means the world.</p>
+    </div>
+  </div>
+
+  <div class="wrap reveal" style="text-align:center;margin-top:clamp(2.5rem,5vw,4rem);">
+    <button class="btn" data-give="" style="padding:.95em 2.6em;font-size:.82rem;letter-spacing:.26em;">Contribute to the Wright House Fund</button>
+  </div>
+
+  <div class="wrap">
+    <p class="reveal" style="text-align:center;max-width:34rem;margin:clamp(2.5rem,5vw,4rem) auto 0;font-family:var(--display);font-style:italic;font-size:1.4rem;color:var(--charcoal-soft);line-height:1.5;">
+      Thank you for your love, your prayers, and your presence. It means more to us than we can say.
+    </p>
+  </div>
+</section>
+
+<!-- CONTRIBUTE MODAL -->
+<div class="gmodal" id="giveModal" hidden>
+  <div class="gmodal__backdrop" data-close></div>
+  <div class="gmodal__card" role="dialog" aria-modal="true" aria-labelledby="gmTitle">
+    <button class="gmodal__x" data-close aria-label="Close">&times;</button>
+    <p class="eyebrow eyebrow--sage">With our whole hearts</p>
+    <h3 class="gmodal__title" id="gmTitle">Thank you<span data-room-suffix></span></h3>
+    <p class="gmodal__msg">Whatever you&rsquo;re
+      able to give, it goes straight into making our first home a place of warmth and welcome.
+      Pop your name in the reference so we can thank you properly.</p>
+    <div class="bank">
+      <div class="brow"><span class="brow__k">Account holder</span><span class="brow__v">Karla Nadia de Jager</span></div>
+      <div class="brow"><span class="brow__k">Bank</span><span class="brow__v">Discovery Bank</span></div>
+      <div class="brow"><span class="brow__k">Account type</span><span class="brow__v">Savings Account</span></div>
+      <div class="brow"><span class="brow__k">Account number</span><span class="brow__v mono">14061087597</span></div>
+      <div class="brow"><span class="brow__k">Branch code</span><span class="brow__v mono">679000</span></div>
+      <div class="brow"><span class="brow__k">BIC / SWIFT</span><span class="brow__v mono">DISCZAJJXXX</span></div>
+      <div class="brow"><span class="brow__k">Reference</span><span class="brow__v" data-ref>Your name</span></div>
+      <div class="bankall">
+        <button class="btn" data-copy="Account holder: Karla Nadia de Jager&#10;Bank: Discovery Bank&#10;Account type: Savings Account&#10;Account number: 14061087597&#10;Branch code: 679000&#10;BIC/SWIFT: DISCZAJJXXX&#10;Reference: Your name">Copy all details</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var modal = document.getElementById('giveModal');
+  if(!modal) return;
+  var suffix = modal.querySelector('[data-room-suffix]');
+  var refEl = modal.querySelector('[data-ref]');
+  var copyBtn = modal.querySelector('[data-copy]');
+  var baseCopy = copyBtn ? copyBtn.getAttribute('data-copy') : '';
+  function open(room){
+    if(room){
+      suffix.textContent = ', toward ' + room;
+      refEl.textContent = 'Your name \u00b7 ' + room;
+      if(copyBtn) copyBtn.setAttribute('data-copy', baseCopy.replace('Reference: Your name', 'Reference: Your name \u00b7 ' + room));
+    } else {
+      suffix.textContent = '';
+      refEl.textContent = 'Your name';
+      if(copyBtn) copyBtn.setAttribute('data-copy', baseCopy);
+    }
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function close(){ modal.hidden = true; document.body.style.overflow = ''; }
+  document.querySelectorAll('[data-give]').forEach(function(b){
+    b.addEventListener('click', function(){ open(b.getAttribute('data-give')); });
+  });
+  modal.querySelectorAll('[data-close]').forEach(function(el){ el.addEventListener('click', close); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && !modal.hidden) close(); });
+})();
+</script>
+
+<div id="site-foot"></div>
+
+<script src="assets/chrome.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>
