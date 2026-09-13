@@ -15,5 +15,5 @@ window.KJ_GUESTS = [
   "Oom Herman","Oom Marnus","Tannie Lizelle","Paula","Carl","Leanne",
   "Gareth","Anton","Jacqui","Riandi","Oom Jaco","Tannie Marisa",
   "Corné","Saskia","Marizaan","Juvan","Tannie Gerda","Oom Morne","Vuyane","Zara",
-  "Janneman Brand","Cira","Chloe Van Driel","Steph Meyer","Marlize","Chloe Coutts-Trotter","Johan Slabbert"
+  "Janneman Brand","Cira","Steph Meyer","Marlize","Chloe Coutts-Trotter","Oom Janneman Brand (Sr)","Tannie Aldalene Brand"
 ];
